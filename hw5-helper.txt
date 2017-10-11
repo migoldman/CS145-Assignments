@@ -1,0 +1,96 @@
+;;; ========================================
+;;;  CMPU-145, Spring 2014
+;;;  Lab 4 Solutions
+;;; ========================================
+
+(load "asmt-helper.txt")
+
+;;;  (A) Global variables
+;;; ===========================
+
+;;  A few list-based natural numbers...
+;; -------------------------------------------------
+
+(define nn0 ())
+(define nn1 '(1))
+(define nn2 '(1 1))
+(define nn3 '(1 1 1))
+(define nn4 '(1 1 1 1))
+(define nn5 '(1 1 1 1 1))
+
+;;  (B) NN-SUCC
+;; =========================================================
+;;  The successor function for list-based natural numbers
+
+;;;  NN-SUCC
+;;; ------------------------------
+;;;  INPUT: N, a natural number represented by a list of ones
+;;;  OUTPUT:  The successor to N, also represented by a list of ones
+
+(define nn-succ
+  (lambda (n) 
+    (cons 1 n)))
+
+;;;  Converting from ordinary numbers to a list of ones
+;;; ========================================================
+
+;;;  MAKE-NN
+;;; ------------------------------------
+;;;  INPUT:  N, an ordinary natural number
+;;;  OUTPUT:  The corresponding list of ones
+;;;  EXAMPLE:  (make-nn 5) ==> (1 1 1 1 1)
+
+(define make-nn
+  (lambda (n)
+    (if (zero? n)
+        ;; Base Case:  Return "zero" (i.e., the empty-list)
+        nn0
+        ;; Recursive Case:  Return the "successor" of "n-1"
+        ;; Notice the use of the previously defined NN-SUCC and MAKE-NN.
+        (nn-succ (make-nn (- n 1))))))
+
+;;;  (D) The NN-ZERO? function
+;;; ===================================================
+
+;;;  NN-ZERO?
+;;; -------------------------------
+;;;  INPUT:  A natural number represented by a list of ones
+;;;  OUTPUT:  #t if that natural number is nn0 (i.e., ()).
+
+(define nn-zero? null?)
+
+;;  (E) NN-PRED
+;; --------------------------------
+;;  The predecessor function for list-based natural numbers
+
+;;;  NN-PRED
+;;; -----------------------------------
+;;;  INPUT:  NN, a natural number represented by a list of ones
+;;;  OUTPUT:  The predecessor of NN, also rep'd by a list of ones
+
+(define nn-pred rest)
+
+;;;  (F) Addition of Natural Numbers
+;;; =====================================================
+
+;;;  NN-ADDN
+;;; ---------------------------------
+;;;  INPUTS:  X, Y, natural numbers represented by a list of ones
+;;;  OUTPUT:  The natural number, X+Y, also rep'd by a list of ones
+;;;   Notice that it is defined in terms of the functions NN-ZERO?,
+;;;   NN-SUCC and NN-PRED, which are defined above.
+
+(define nn-addn
+  (lambda (x y)
+    (cond
+      ;; Base Case:   Y = 0
+      ((nn-zero? y)
+       ;; Thus X+Y = Y
+       x)
+      ;; Recursive Case: Y = SUCC of some K
+      (#t
+       ;;   So, X + Y = X + SUCC(K) = SUCC (X + K)
+       ;;   Where K is represented by (NN-PRED Y)
+       (nn-succ (nn-addn x (nn-pred y)))))))
+
+

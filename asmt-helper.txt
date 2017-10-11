@@ -1,0 +1,47 @@
+;;; ================================
+;;;  CMPU-145, Spring 2014
+;;;  asmt-helper.txt
+;;; ================================
+;;;  This file defines some functions that makes formatting assignments easier.
+;;;  It also demonstrates how to comment your code!
+
+
+;;;  HEADER
+;;; -------------------------
+;;;  INPUTS:  ASMT-STRING, a string representing the particular assignment (e.g., "asmt 0")
+;;;           NAME-STRING, a string representing your name
+;;;  OUTPUT:  none
+;;;  SIDE EFFECT:  Prints out a nice header for your assignment in the Interactions Window
+
+(define header
+  (lambda (asmt-string name-string)
+    (printf "=======================================~%")
+    (printf "  CMPU-145, Spring 2014~%")
+    (printf "  ~A~%" asmt-string)
+    (printf "  ~A~%" name-string)
+    (printf "=======================================~%~%")))
+
+
+;;;  PROBLEM
+;;; -------------------------
+;;;  INPUT:  PROBLEM-STRING, a string giving some info about the problem (e.g., "(1) FACTORIAL")
+;;;  OUTPUT:  none
+;;;  SIDE EFFECT:  Prints out a nice header for a problem within an assignment
+
+(define problem
+  (lambda (problem-string)
+    (printf "~%------------------------~%")
+    (printf "  ~A~%" problem-string)
+    (printf "------------------------~%~%")))
+
+
+;;;  TESTER
+;;; -------------------------
+;;;  INPUT:  DATUM, a scheme datum
+;;;  OUTPUT:  The result of evaluating that datum
+;;;  SIDE EFFECT:  Prints out the DATUM before evaluation, followed by an arrow...
+
+(define tester
+  (lambda (datum)
+    (printf "~A ====> " datum)
+    (eval datum)))

@@ -1,0 +1,201 @@
+;;; ================================
+;;;  CMPU-145, Spring 2014
+;;;  HW 7 Helper File
+;;; ================================
+
+(load "asmt-helper.txt")
+
+;;;  N-CHOOSE-K
+;;; ========================================================
+
+;;;  N-CHOOSE-K
+;;; ---------------------------
+;;;  INPUTS:  N, K, non-negative integers with K <= N
+;;;  OUTPUT:  The value "N choose K"
+
+(define n-choose-k-acc
+  (lambda (n k acc)
+    (cond
+      ;; Base Case:  K <= 0
+      ((<= k 0)
+       ;; Return the accumulator!
+       acc)
+      ;; Recursive Case:  K > 0
+      (#t
+       ;; Tail-recursive function call with updated inputs
+       (n-choose-k-acc (- n 1) 
+                       (- k 1) 
+                       (* acc n (/ 1 k)))))))
+
+(define n-choose-k
+  (lambda (n k)
+    ;; Just call helper function with suitably initialized accumulator
+    (n-choose-k-acc n k 1)))
+
+;;;  NUMBER OF 5-CARD POKER HANDS  
+;;; ----------------------------------------------
+
+(define *num-5-card-hands* (n-choose-k 52 5))
+
+;;;  GEN-AND-TEST  
+;;; ------------------------------------------------------
+;;;  INPUTS:  N, a non-negative integer
+;;;           GEN, a function of one input that is used to generate random
+;;;                 instances of some event (e.g., tossing a die, 
+;;;                 dealing a card)
+;;;           TEST, a function that tests whether some given instance has 
+;;;                 some property
+;;;                 (e.g., die > three, or card is a face card)
+;;;  OUTPUT:  The fraction of N random trials in which the randomly generated
+;;;           instances satisfied the TEST.
+
+(define gen-and-test
+  (lambda (n gen test)
+    ;; COUNT is a counter variable
+    (let ((count 0))
+      ;; DOTIMES executes its body N times
+      (dotimes (i n)
+               ;; Use (GEN) to generate a random instance;
+               ;; Use TEST to determine whether that instance has the 
+               ;; desired property
+               (if (test (gen))
+                   ;; If it does, then destructively increment the counter!
+                   (set! count (+ count 1))))
+      ;; After the DOTIMES loop finishes, return the fraction of the 
+      ;; trials that satisfied the TEST.
+      (/ count n 1.0))))
+
+;;;  A simple representation of cards --  seen previously
+;;; ---------------------------------------------------------------
+;;;  A card is a number from 0 to 51
+;;;  Its rank is a number from 1 to 13 (J = 11, Q = 12, K = 13)
+;;;  Its suit is a number from 0 to 3 (0 = Clubs, 1 = Diamonds, 
+;;;  2 = Hearts, 3 = Spades)
+
+(define *deck* 
+  '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26
+      27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51))
+
+;;;  The RANK of a card is a number from 1 to 13, 
+;;;  where 11=Jack, 12=Queen, 13=King
+;;; ---------------------------------------------
+
+(define rank
+  (lambda (card)
+    (+ 1 (remainder card 13))))
+
+;;;  The SUIT of a card is a number from 0 to 3, 
+;;;  where 0=Clubs, 1=Diamonds, etc.
+;;; --------------------------------------------
+
+(define suit
+  (lambda (card)
+    (quotient card 13)))
+
+;;;  RAND-CHOOSE-ONE   
+;;; -------------------------------------
+;;;  INPUT:  LISTY, a list of items (usually with no repeats)
+;;;  OUTPUT:  A randomly chosen item from that list
+
+(define rand-choose-one
+  (lambda (listy)
+    (nth listy (random (length listy)))))
+
+;;;  RAND-CHOOSE-K  
+;;; ----------------------------------
+;;;  INPUTS:  K, a non-negative integer
+;;;           LISTY, a list of at least K items
+;;;  OUTPUT:  A list of K items chosen randomly from LISTY where
+;;;           order doesn't matter and repetition NOT allowed.
+
+(define rand-choose-k
+  (lambda (k listy)
+    (cond
+      ;; Base Case:  K <= 0
+      ((<= k 0)
+       ;; A list of 0 items
+       ())
+      ;; Error Case:  K > 0 but LISTY is empty :o
+      ((null? listy)
+       ;; Just return a symbol signifying that an error happened
+       'error)
+      ;; Recursive Case:  K > 0 and LISTY non-empty
+      (#t
+       ;; Pick one item from LISTY
+       (let ((rndy (rand-choose-one listy)))
+         ;; And then cons it onto the front of 
+         (cons rndy
+               ;; a list of (k-1) items chosen from
+               (rand-choose-k (- k 1) 
+                              ;; the remaining items in listy
+                              (remove rndy listy))))))))
+
+;;;  RAND-POKER-HAND
+;;; -----------------------------------
+;;;  INPUTS:  None
+;;;  OUTPUT:  A list of 5 randomly chosen cards from *DECK*
+;;;  Note:  This function is called like this:  (rand-poker-hand)
+
+(define rand-poker-hand
+  (lambda ()
+    (rand-choose-k 5 *deck*)))
+
+
+;;;  Numerical ranks and suits
+
+(define *ranks* '(1 2 3 4 5 6 7 8 9 10 11 12 13))
+(define *suits* '(0 1 2 3))
+
+;;;  Symbols for the ranks and suits
+
+(define *rank-syms* '(A 2 3 4 5 6 7 8 9 10 J Q K))
+(define *suit-syms* '(C D H S))
+
+;;;  CARD->RANK-SYM
+;;; ---------------------------
+;;;  INPUT:  C, a card (i.e., number from 0 to 51)
+;;;  OUTPUT:  A symbol representing the rank of the card (e.g., A, 2, 3..)
+
+(define card->rank-sym
+  (lambda (c)
+    (nth *rank-syms* (- (rank c) 1))))
+
+;;;  CARD->SUIT-SYM
+;;; ----------------------------
+;;;  Same as above, except returns a symbol representing the
+;;;  suit of the card (e.g., C, D, H or S).
+
+(define card->suit-sym
+  (lambda (c)
+    (nth *suit-syms* (suit c))))
+
+;;;  CARD-FROM-RANK-AND-SUIT
+;;; ------------------------------------------------
+;;;  INPUTS:  RANK, a number from 1 to 13
+;;;           SUIT, a number from 0 to 3
+;;;  OUTPUT:  The corresponding card, as a number from 0 to 51
+
+(define card-from-rank-and-suit
+  (lambda (rank suit)
+    (+ (* 13 suit) rank -1)))
+
+;;;  CARD->STRING
+;;; -----------------------------
+;;;  INPUT:  C, a card (i.e., number from 0 to 51)
+;;;  OUTPUT:  A string representation of that card (e.g., "3D" or "KC")
+
+(define card->string
+  (lambda (c)
+    (format "~S~S " (card->rank-sym c) (card->suit-sym c))))
+
+;;;  CARDS->STRING
+;;; ----------------------------------------
+;;;  INPUT:  CARDS, a list of numbers, each from 0 to 51
+;;;  OUTPUT:  A string representation of the cards
+
+(define cards->string
+  (lambda (cards)
+    (apply string-append
+           (map card->string cards))))
+
+;;; ==============================
